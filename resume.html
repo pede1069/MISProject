@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Resume</title>
+  <style>
+    body{font-family:Inter, system-ui, -apple-system, Arial, sans-serif;margin:0;background:#f7fafc;color:#0f1724}
+    .container{max-width:960px;margin:28px auto;padding:20px}
+  </style>
+  <link rel="stylesheet" href="CSS/styles.css">
+</head>
+<body>
+  <nav class="site-nav">
+    <ul class="site-nav-list">
+      <li><a class="site-nav-link" href="index.html">Home</a></li>
+      <li><a class="site-nav-link" href="hobbies.html">Hobbies</a></li>
+      <li><a class="site-nav-link" href="game.html">Game</a></li>
+      <li><a class="site-nav-link active" href="resume.html">Resume</a></li>
+      <li><a class="site-nav-link" href="career.html">Career</a></li>
+      <li><a class="site-nav-link" href="discover.html">Discover</a></li>
+    </ul>
+  </nav>
+  <div class="container">
+    <h1>Resume</h1>
+    <p>
+      <a href="files/resume.html" download class="site-nav-link" style="display:inline-block;margin-right:10px">Download resume (HTML)</a>
+      <a href="files/Blue%20Simple%20Professional%20CV%20Resume.pdf" download class="site-nav-link" style="display:inline-block;margin-right:10px">Download resume (PDF)</a>
+      <button id="viewPdfBtn" class="site-nav-link" style="display:inline-block">View PDF</button>
+    </p>
+
+    <section class="resume-web" aria-label="Resume (web format)">
+      <h2>Conner Pederson</h2>
+      <p class="muted">Sophomore — Accounting student, University of Minnesota Duluth</p>
+
+      <h3>Summary</h3>
+      <p>Motivated accounting student with coursework in financial accounting, auditing, and tax. Interested in public accounting and financial analysis.</p>
+
+      <h3>Education</h3>
+      <ul>
+        <li><strong>University of Minnesota Duluth</strong> — B.S. Accounting (in progress)</li>
+      </ul>
+
+      <h3>Experience</h3>
+      <ul>
+      </li>Subway Sandwich Artist - Made Sandwiches and Provided Customer Service
+      </ul>
+      </li>       Bluff Creek Golf Course Grounds Crew - Maintained Course and Assisted with Events
+      </ul>
+
+      <h3>Skills</h3>
+      <p>Excel, QuickBooks, basic SQL, data analysis, attention to detail.</p>
+    </section>
+    
+    <div id="pdfViewer" style="display:none;margin-top:18px">
+      <iframe id="pdfFrame" src="files/Blue%20Simple%20Professional%20CV%20Resume.pdf" style="width:100%;height:640px;border:1px solid #ddd;border-radius:8px"></iframe>
+    </div>
+
+    <script>
+      const viewPdfBtn = document.getElementById('viewPdfBtn');
+      const pdfViewer = document.getElementById('pdfViewer');
+      viewPdfBtn.addEventListener('click', ()=>{
+        pdfViewer.style.display = pdfViewer.style.display === 'none' ? 'block' : 'none';
+        viewPdfBtn.textContent = pdfViewer.style.display === 'none' ? 'View PDF' : 'Hide PDF';
+      });
+    </script>
+  </div>
+</body>
+</html>

@@ -1,493 +1,146 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UMD Bulldog T-Rex Game</title>
-    <style>
-        body {
-            font-family: 'Arial Black', Arial, sans-serif;
-            margin: 0;
-            background: linear-gradient(135deg, #7B1128 0%, #D4AF37 100%);
-            min-height: 100vh;
-        }
-        nav {
-            background-color: #7B1128;
-            padding: 1rem;
-            position: sticky;
-            top: 0;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-        }
-        nav ul {
-            list-style-type: none;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            gap: 2rem;
-        }
-        nav a {
-            color: #D4AF37;
-            text-decoration: none;
-            padding: 0.5rem 1rem;
-            border-radius: 4px;
-            transition: all 0.3s;
-            font-weight: bold;
-        }
-        nav a:hover {
-            background-color: #5A0D1E;
-            transform: translateY(-2px);
-        }
-        .game-title {
-            text-align: center;
-            padding: 20px 20px 10px;
-            color: #D4AF37;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-            font-size: 2.5em;
-            margin: 0;
-        }
-        .subtitle {
-            text-align: center;
-            color: #fff;
-            font-size: 1.2em;
-            margin-bottom: 20px;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
-        }
-        .game-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-        canvas {
-            background: #f0f8ff;
-            border: 4px solid #7B1128;
-            box-shadow: 0 0 25px rgba(123, 17, 40, 0.4);
-            border-radius: 15px;
-            max-width: 100%;
-        }
-        .instructions {
-            text-align: center;
-            color: #fff;
-            margin-top: 15px;
-            font-size: 1.1em;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
-        }
-        .umd-logo {
-            text-align: center;
-            color: #D4AF37;
-            font-size: 0.8em;
-            margin-top: 10px;
-        }
-        .progress {
-            text-align: center;
-            color: #fff;
-            margin-top: 10px;
-            font-size: 1.1em;
-        }
-    </style>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width,initial-scale=1" />
+	<title>Potion Mix-Up — Prototype</title>
+	<style>
+		:root{
+			--bg:#0f1724; --card:#111827; --accent:#8b5cf6; --muted:#9ca3af; --glass: rgba(255,255,255,0.03);
+			--glass-2: rgba(255,255,255,0.02);
+		}
+		html,body{height:100%;margin:0;font-family:Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;color:#e6eef8;background:linear-gradient(180deg,#071022 0%, #06111a 100%);}    
+		.app{max-width:980px;margin:28px auto;padding:20px;display:grid;grid-template-columns:260px 1fr 260px;gap:18px;align-items:start}
+		.panel{background:var(--card);border-radius:12px;padding:14px;box-shadow:0 6px 20px rgba(2,6,23,0.6);}    
+		h1{margin:0 0 10px;font-size:18px}
+		.target-box, .cauldron-box{height:110px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:700}
+		.muted{color:var(--muted);font-size:13px}
+		.section{margin-bottom:12px}
+		.ing-list{display:flex;flex-direction:column;gap:10px}
+		.ingredient{display:flex;align-items:center;gap:10px;padding:8px;border-radius:8px;background:var(--glass);cursor:grab;user-select:none}
+		.ingredient:active{cursor:grabbing}
+		.swatch{width:42px;height:42px;border-radius:8px;box-shadow:inset 0 -6px 18px rgba(0,0,0,0.3)}
+		.ing-meta{flex:1}
+		.ing-name{font-weight:600}
+		.strength-bar{height:6px;background:var(--glass-2);border-radius:6px;margin-top:6px;overflow:hidden}
+		.strength-fill{height:100%;width:40%;background:linear-gradient(90deg,var(--accent),#f97316)}
+		.center{display:flex;flex-direction:column;align-items:center;gap:12px}
+		.cauldron{width:220px;height:220px;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 10px 30px rgba(0,0,0,0.6) inset, 0 10px 40px rgba(0,0,0,0.4);position:relative}
+		.cauldron .level{position:absolute;bottom:18px;left:18px;right:18px;height:46%;border-radius:inherit}
+		.controls{display:flex;gap:10px}
+		button{background:linear-gradient(180deg,#111827,#0b1220);border:1px solid rgba(255,255,255,0.04);color:#e6eef8;padding:8px 12px;border-radius:8px;cursor:pointer}
+		.row{display:flex;gap:10px;align-items:center}
+		.meter{height:12px;border-radius:999px;background:var(--glass-2);overflow:hidden}
+		.meter-fill{height:100%;width:0%;background:linear-gradient(90deg,#10b981,#f59e0b)}
+		.small{font-size:13px}
+		.ingredients-grid{display:grid;grid-template-columns:repeat(1,1fr);gap:8px}
+		.footer{font-size:12px;color:var(--muted);margin-top:6px}
+		@media (max-width:900px){.app{grid-template-columns:1fr;max-width:580px}}
+		/* draggable styles */
+		.hint{font-size:12px;color:var(--muted)}
+		.stars{font-size:16px}
+		.score{font-weight:700}
+	</style>
+		<link rel="stylesheet" href="CSS/styles.css">
 </head>
 <body>
-    <nav>
-        <ul>
-            <li><a href="index.html">Home</a></li>
-            <li><a href="hobbies.html">Hobbies</a></li>
-            <li><a href="game.html">Game</a></li>
-            <li><a href="resume.html">Resume</a></li>
-            <li><a href="career.html">Career</a></li>
-            <li><a href="discover.html">Discover</a></li>
-        </ul>
-    </nav>
-    <h1 class="game-title">🐕 UMD BULLDOG T-REX 🐕</h1>
-    <div class="subtitle">University of Minnesota Duluth - Go Bulldogs!</div>
-    <div class="game-container">
-        <canvas id="gameCanvas" width="800" height="400"></canvas>
-    </div>
-    <div class="instructions">
-        <strong>Press SPACEBAR or UP ARROW to jump over obstacles!</strong><br>
-        You have only ONE LIFE. Clear all 100 obstacles to win!
-    </div>
-    <div class="progress" id="progress">
-        Obstacles: 0/100 | Score: 0 | Game Status: Playing
-    </div>
-    <div class="umd-logo">🏈 GO BULLDOGS! 🏈</div>
+		<nav class="site-nav">
+			<ul class="site-nav-list">
+				<li><a class="site-nav-link" href="index.html">Home</a></li>
+				<li><a class="site-nav-link" href="hobbies.html">Hobbies</a></li>
+				<li><a class="site-nav-link active" href="game.html">Game</a></li>
+				<li><a class="site-nav-link" href="resume.html">Resume</a></li>
+				<li><a class="site-nav-link" href="career.html">Career</a></li>
+				<li><a class="site-nav-link" href="discover.html">Discover</a></li>
+			</ul>
+		</nav>
+	<div class="app">
+		<!-- Left panel: Target & Info -->
+		<div class="panel">
+			<h1>Target Potion</h1>
+			<div class="section">
+				<div id="targetBox" class="target-box" style="background:#666;">&nbsp;</div>
+				<div class="row" style="margin-top:8px;justify-content:space-between;align-items:center">
+					<div class="muted">Target color</div>
+					<div id="targetRgb" class="small muted">rgb(...)</div>
+				</div>
+			</div>
 
-    <script>
-        // Game variables
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
-        
-        // UMD Colors
-        const UMD_MAROON = '#7B1128';
-        const UMD_GOLD = '#D4AF37';
-        const UMD_DARK_MAROON = '#5A0D1E';
-        
-        const player = {
-            x: 50,
-            y: canvas.height - 80,
-            width: 50,
-            height: 40,
-            velocityY: 0,
-            isJumping: false,
-            groundY: canvas.height - 80,
-            lives: 1 // Single life
-        };
+			<div class="section">
+				<div class="muted">How to play</div>
+				<div class="footer">Drag or tap an ingredient into the cauldron. Each ingredient has a color and a strength that affects mixing. Match the target color to score stars.</div>
+			</div>
 
-        const gravity = 0.8;
-        const jumpForce = -15;
-        let score = 0;
-        let gameSpeed = 6;
-        let obstacles = [];
-        let clouds = [];
-        let obstaclesCreated = 0;
-        let obstaclesCleared = 0;
-        const MAX_OBSTACLES = 100;
-        let gameStarted = false;
-        let gameOver = false;
-        let gameWon = false;
+			<div class="section">
+				<div class="muted">Match meter</div>
+				<div class="meter" style="margin-top:6px"><div id="matchFill" class="meter-fill" style="width:0%"></div></div>
+				<div style="display:flex;justify-content:space-between;margin-top:6px"><div class="small muted">0%</div><div class="small muted">100%</div></div>
+			</div>
 
-        // Handle keyboard input
-        document.addEventListener('keydown', (e) => {
-            if ((e.key === ' ' || e.key === 'ArrowUp') && !player.isJumping && gameStarted && !gameOver && !gameWon) {
-                player.velocityY = jumpForce;
-                player.isJumping = true;
-            }
-            if (e.key === 'Enter' && (!gameStarted || gameOver || gameWon)) {
-                startGame();
-            }
-        });
+			<div class="section">
+				<div class="muted">Last result</div>
+				<div id="lastResult" class="small footer">—</div>
+			</div>
+		</div>
 
-        // Start game function
-        function startGame() {
-            gameStarted = true;
-            gameOver = false;
-            gameWon = false;
-            score = 0;
-            player.lives = 1;
-            player.y = player.groundY;
-            player.velocityY = 0;
-            player.isJumping = false;
-            obstacles = [];
-            clouds = [];
-            obstaclesCreated = 0;
-            obstaclesCleared = 0;
-            createInitialClouds();
-            gameLoop();
-        }
+		<!-- Center: Cauldron and ingredients -->
+		<div class="panel center">
+			<div style="display:flex;justify-content:space-between;align-items:center;width:100%">
+				<h1>Cauldron</h1>
+				<div class="controls">
+								<button id="resetBtn">Reset</button>
+								<button id="newRoundBtn">New Round</button>
+								<!-- Assist controls: AutoMix (limited uses) and Boost (one-use next drop) -->
+											<button id="autoMixBtn">AutoMix <span id="autoMixCount" style="font-weight:700;margin-left:6px">—</span></button>
+											<button id="boostBtn">Boost</button>
+											<button id="autoMatchBtn">AutoMatch</button>
+											<button id="forceMatchBtn">Force Match</button>
+				</div>
+			</div>
 
-        // Create obstacles (campus items)
-        function createObstacle() {
-            if (obstaclesCreated >= MAX_OBSTACLES) return;
-            
-            const obstacleTypes = [
-                { width: 30, height: 60, type: 'book', speed: 1.0 },
-                { width: 40, height: 50, type: 'backpack', speed: 1.2 },
-                { width: 35, height: 45, type: 'fountain', speed: 0.8 },
-                { width: 25, height: 70, type: 'tree', speed: 1.1 },
-                { width: 20, height: 40, type: 'stone', speed: 0.9 }
-            ];
-            
-            const obstacle = obstacleTypes[Math.floor(Math.random() * obstacleTypes.length)];
-            obstacles.push({
-                x: canvas.width,
-                y: canvas.height - 20 - obstacle.height,
-                width: obstacle.width,
-                height: obstacle.height,
-                type: obstacle.type,
-                speed: obstacle.speed
-            });
-            obstaclesCreated++;
-        }
+			<div style="display:flex;gap:18px;align-items:center;flex-direction:column;width:100%">
+				<div id="cauldron" class="cauldron" ondragover="event.preventDefault()" ondrop="onDrop(event)">
+					<div id="cauldronColor" class="level" style="background:linear-gradient(180deg,#0000,#0000)"></div>
+					<div style="position:absolute;top:8px;left:12px;color:var(--muted);font-size:13px">Mixes: <span id="dropsCount">0</span></div>
+					<div id="cauldronLabel" style="position:absolute;">&nbsp;</div>
+				</div>
 
-        // Create clouds for background
-        function createCloud() {
-            clouds.push({
-                x: canvas.width,
-                y: Math.random() * 150 + 20,
-                width: Math.random() * 80 + 40,
-                height: Math.random() * 30 + 20,
-                speed: Math.random() * 0.5 + 0.2
-            });
-        }
+				<div style="width:100%;display:flex;justify-content:center;gap:14px;align-items:center">
+					<div class="row" style="gap:8px;align-items:center">
+						<div class="muted">Current</div>
+						<div id="currentRgb" class="small muted">rgb(...)</div>
+					</div>
+					<div class="row" style="gap:8px;align-items:center">
+						<div class="muted">Distance</div>
+						<div id="distanceTxt" class="small muted">0</div>
+					</div>
+					<div class="row" style="gap:8px;align-items:center">
+						<div class="muted">Stars</div>
+						<div id="stars" class="stars">—</div>
+					</div>
+				</div>
+			</div>
 
-        // Create initial clouds
-        function createInitialClouds() {
-            for (let i = 0; i < 5; i++) {
-                clouds.push({
-                    x: Math.random() * canvas.width,
-                    y: Math.random() * 150 + 20,
-                    width: Math.random() * 80 + 40,
-                    height: Math.random() * 30 + 20,
-                    speed: Math.random() * 0.5 + 0.2
-                });
-            }
-        }
+			<div style="width:100%;margin-top:12px">
+				<div class="muted" style="margin-bottom:8px">Tap an ingredient to add (mobile friendly) or drag it to the cauldron.</div>
+				<div id="ingredients" class="ingredients-grid"></div>
+			</div>
+		</div>
 
-        // Draw bulldog
-        function drawBulldog() {
-            const x = player.x;
-            const y = player.y;
-            
-            // Body
-            ctx.fillStyle = UMD_MAROON;
-            ctx.fillRect(x, y, 35, 25);
-            
-            // Head
-            ctx.fillRect(x + 25, y - 10, 30, 25);
-            
-            // Ears
-            ctx.fillRect(x + 30, y - 15, 8, 8);
-            ctx.fillRect(x + 42, y - 15, 8, 8);
-            
-            // Legs
-            ctx.fillRect(x + 5, y + 25, 8, 15);
-            ctx.fillRect(x + 20, y + 25, 8, 15);
-            ctx.fillRect(x + 35, y + 25, 8, 15);
-            
-            // Tail
-            ctx.fillRect(x - 5, y + 5, 8, 15);
-            
-            // Eyes
-            ctx.fillStyle = '#000';
-            ctx.fillRect(x + 45, y - 5, 4, 4);
-            ctx.fillRect(x + 50, y - 5, 4, 4);
-            
-            // Nose
-            ctx.fillRect(x + 52, y + 2, 4, 4);
-            
-            // UMD collar
-            ctx.fillStyle = UMD_GOLD;
-            ctx.fillRect(x + 25, y + 5, 15, 3);
-        }
+		<!-- Right panel: Ingredient details & log -->
+		<div class="panel">
+			<h1>Ingredients</h1>
+			<div class="section">
+				<div id="ingredientsList" class="ing-list"></div>
+			</div>
 
-        // Draw obstacle
-        function drawObstacle(obstacle) {
-            ctx.fillStyle = UMD_MAROON;
-            ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
-            
-            // Add some detail based on type
-            ctx.fillStyle = UMD_GOLD;
-            if (obstacle.type === 'book') {
-                ctx.fillRect(obstacle.x + 5, obstacle.y + 10, 20, 3);
-            } else if (obstacle.type === 'backpack') {
-                ctx.fillRect(obstacle.x + 8, obstacle.y + 5, 24, 3);
-            } else if (obstacle.type === 'fountain') {
-                ctx.fillRect(obstacle.x + 5, obstacle.y + 15, 25, 3);
-            } else if (obstacle.type === 'tree') {
-                ctx.fillRect(obstacle.x + 2, obstacle.y + 20, 20, 3);
-            } else if (obstacle.type === 'stone') {
-                ctx.fillRect(obstacle.x + 2, obstacle.y + 15, 15, 3);
-            }
-        }
+			<div class="section">
+				<div class="muted">Round info</div>
+				<div class="small footer" style="margin-top:6px">You get unlimited drops on casual mode. Try to get as close as possible. Scores show color distance and star rating.</div>
+			</div>
+		</div>
+	</div>
 
-        // Draw cloud
-        function drawCloud(cloud) {
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
-            ctx.beginPath();
-            ctx.arc(cloud.x, cloud.y, cloud.height / 2, 0, Math.PI * 2);
-            ctx.arc(cloud.x + 20, cloud.y, cloud.height / 2, 0, Math.PI * 2);
-            ctx.arc(cloud.x + 40, cloud.y, cloud.height / 2, 0, Math.PI * 2);
-            ctx.fill();
-        }
-
-        // Update game state
-        function update() {
-            if (!gameStarted || gameOver || gameWon) return;
-
-            // Apply gravity
-            player.velocityY += gravity;
-            player.y += player.velocityY;
-
-            // Ground collision
-            if (player.y > player.groundY) {
-                player.y = player.groundY;
-                player.velocityY = 0;
-                player.isJumping = false;
-            }
-
-            // Move obstacles
-            for (let i = obstacles.length - 1; i >= 0; i--) {
-                obstacles[i].x -= gameSpeed * obstacles[i].speed;
-
-                // Remove off-screen obstacles
-                if (obstacles[i].x + obstacles[i].width < 0) {
-                    obstacles.splice(i, 1);
-                    score += 10;
-                    obstaclesCleared++;
-                    // Increase speed gradually
-                    gameSpeed = Math.min(12, 6 + Math.floor(obstaclesCleared / 20) * 0.5);
-                }
-
-                // Collision detection - game over on hit
-                if (checkCollision(player, obstacles[i])) {
-                    player.lives = 0;
-                    gameOver = true;
-                    setTimeout(() => {
-                        alert(`GAME OVER!\n\nObstacles cleared: ${obstaclesCleared}/${MAX_OBSTACLES}\nFinal score: ${score}\n\nPress ENTER to try again!`);
-                    }, 100);
-                }
-            }
-
-            // Check for win condition
-            if (obstaclesCleared >= MAX_OBSTACLES) {
-                gameWon = true;
-                setTimeout(() => {
-                    alert(`🎉 CONGRATULATIONS! 🎉\n\nYou cleared all ${MAX_OBSTACLES} obstacles!\nFinal score: ${score}\n\nUMD BULLDOGS WIN!\n\nPress ENTER to play again!`);
-                }, 100);
-            }
-
-            // Move clouds
-            for (let i = clouds.length - 1; i >= 0; i--) {
-                clouds[i].x -= clouds[i].speed;
-                if (clouds[i].x + clouds[i].width < 0) {
-                    clouds.splice(i, 1);
-                }
-            }
-
-            // Add new clouds
-            if (Math.random() < 0.01) {
-                createCloud();
-            }
-
-            // Add new obstacles (only if we haven't reached 100)
-            if (obstaclesCreated < MAX_OBSTACLES && Math.random() < 0.02) {
-                createObstacle();
-            }
-        }
-
-        // Check collision between two rectangles
-        function checkCollision(rect1, rect2) {
-            return rect1.x < rect2.x + rect2.width &&
-                   rect1.x + rect1.width > rect2.x &&
-                   rect1.y < rect2.y + rect2.height &&
-                   rect1.y + rect1.height > rect2.y;
-        }
-
-        // Draw game elements
-        function draw() {
-            // Clear canvas
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            // Draw sky background with UMD gradient
-            const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-            gradient.addColorStop(0, '#E6F3FF');
-            gradient.addColorStop(1, '#CCE7FF');
-            ctx.fillStyle = gradient;
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            // Draw clouds
-            clouds.forEach(cloud => drawCloud(cloud));
-
-            // Draw ground
-            ctx.fillStyle = '#8FBC8F';
-            ctx.fillRect(0, canvas.height - 20, canvas.width, 20);
-            
-            // Draw grass detail
-            ctx.fillStyle = '#228B22';
-            for (let i = 0; i < canvas.width; i += 10) {
-                ctx.fillRect(i, canvas.height - 25, 2, 5);
-            }
-
-            // Draw UMD campus path
-            ctx.fillStyle = '#D2B48C';
-            ctx.fillRect(0, canvas.height - 30, canvas.width, 10);
-
-            // Draw obstacles
-            obstacles.forEach(obstacle => drawObstacle(obstacle));
-
-            // Draw bulldog (only if not game over)
-            if (!gameOver && !gameWon) {
-                drawBulldog();
-            }
-
-            // Draw score and game info
-            ctx.fillStyle = UMD_MAROON;
-            ctx.font = 'bold 20px Arial Black';
-            ctx.fillText(`Score: ${score}`, 10, 30);
-            ctx.fillText(`Lives: ${player.lives}`, 10, 55);
-            ctx.fillText('UMD Bulldogs!', canvas.width - 180, 30);
-
-            // Draw progress
-            ctx.fillStyle = '#666';
-            ctx.font = 'bold 16px Arial';
-            ctx.fillText(`Progress: ${obstaclesCleared}/${MAX_OBSTACLES}`, 10, 80);
-
-            // Update progress display
-            let status = 'Playing';
-            if (gameOver) status = 'Game Over';
-            if (gameWon) status = 'You Won!';
-            
-            document.getElementById('progress').textContent = 
-                `Obstacles: ${obstaclesCleared}/${MAX_OBSTACLES} | Score: ${score} | Game Status: ${status}`;
-
-            // Draw game over message
-            if (gameOver) {
-                ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                
-                ctx.fillStyle = UMD_GOLD;
-                ctx.font = 'bold 48px Arial Black';
-                ctx.textAlign = 'center';
-                ctx.fillText('GAME OVER!', canvas.width / 2, canvas.height / 2 - 40);
-                
-                ctx.fillStyle = '#fff';
-                ctx.font = 'bold 24px Arial';
-                ctx.fillText(`Obstacles: ${obstaclesCleared}/${MAX_OBSTACLES}`, canvas.width / 2, canvas.height / 2);
-                ctx.fillText(`Score: ${score}`, canvas.width / 2, canvas.height / 2 + 30);
-                ctx.fillText('Press ENTER to restart', canvas.width / 2, canvas.height / 2 + 70);
-                ctx.textAlign = 'left';
-            }
-
-            // Draw win message
-            if (gameWon) {
-                ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                
-                ctx.fillStyle = UMD_GOLD;
-                ctx.font = 'bold 36px Arial Black';
-                ctx.textAlign = 'center';
-                ctx.fillText('🎉 YOU WIN! 🎉', canvas.width / 2, canvas.height / 2 - 40);
-                ctx.fillText('UMD BULLDOGS!', canvas.width / 2, canvas.height / 2);
-                
-                ctx.fillStyle = '#fff';
-                ctx.font = 'bold 20px Arial';
-                ctx.fillText(`Perfect Score: ${score}`, canvas.width / 2, canvas.height / 2 + 30);
-                ctx.fillText('Press ENTER to play again', canvas.width / 2, canvas.height / 2 + 60);
-                ctx.textAlign = 'left';
-            }
-
-            // Draw start message
-            if (!gameStarted) {
-                ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                
-                ctx.fillStyle = UMD_GOLD;
-                ctx.font = 'bold 36px Arial Black';
-                ctx.textAlign = 'center';
-                ctx.fillText('UMD BULLDOG T-REX', canvas.width / 2, canvas.height / 2 - 60);
-                
-                ctx.fillStyle = '#fff';
-                ctx.font = 'bold 18px Arial';
-                ctx.fillText('🏈 Go Bulldogs! 🏈', canvas.width / 2, canvas.height / 2 - 20);
-                ctx.fillText('Clear all 100 obstacles to win!', canvas.width / 2, canvas.height / 2 + 10);
-                ctx.fillText('Press ENTER to start!', canvas.width / 2, canvas.height / 2 + 40);
-                ctx.fillText('Use SPACEBAR or UP to jump!', canvas.width / 2, canvas.height / 2 + 70);
-                ctx.textAlign = 'left';
-            }
-        }
-
-        // Game loop
-        function gameLoop() {
-            update();
-            draw();
-            if (gameStarted && !gameOver && !gameWon) {
-                requestAnimationFrame(gameLoop);
-            }
-        }
-
-        // Initialize game
-        createInitialClouds();
-        draw(); // Show start screen
-    </script>
+	<script src="js/game.js"></script>
 </body>
 </html>

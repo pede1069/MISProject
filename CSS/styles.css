@@ -1,0 +1,60 @@
+/* Shared navigation styles for site-wide tabs */
+.site-nav{
+	background:#333;
+	padding:0.75rem;
+	position:sticky;
+	top:0;
+	z-index:30;
+}
+.site-nav-list{
+	list-style:none;
+	margin:0;
+	padding:0;
+	display:flex;
+	justify-content:center;
+	gap:1.25rem;
+}
+.site-nav-link{
+	color:white;
+	text-decoration:none;
+	padding:0.4rem 0.8rem;
+	border-radius:6px;
+	display:inline-block;
+	transition:background-color .18s, transform .12s;
+}
+.site-nav-link:hover{background:#555}
+.site-nav-link.active{background:#111;box-shadow:0 2px 8px rgba(0,0,0,0.25)}
+
+/* small utility */
+.container{max-width:960px;margin:28px auto;padding:20px}
+
+/* page-specific helpers */
+.page-lead{margin-top:18px}
+.image-row{display:flex;gap:12px;justify-content:center;margin-top:18px}
+.image-row figure{width:30%;margin:0}
+.image-row img{width:100%;height:auto;border-radius:8px;object-fit:cover;display:block}
+.image-row figcaption{margin-top:8px;text-align:center;color:#334;font-size:0.95rem}
+@media (max-width:700px){
+	.image-row{flex-direction:column;align-items:center}
+	.image-row figure{width:80%;max-width:420px}
+}
+
+/* Video block under photos */
+.page-video{display:flex;justify-content:center;margin-top:20px}
+.page-video video{width:80%;max-width:920px;border-radius:8px;display:block}
+@media (max-width:700px){
+	.page-video video{width:100%;max-width:640px}
+}
+
+/* Company header used on career page */
+.company-header{display:flex;align-items:center;gap:18px;justify-content:space-between}
+.company-logo{width:400px;height:auto;border-radius:6px;flex-shrink:0}
+.company-contact p{margin:6px 0}
+@media (max-width:900px){
+	.company-logo{width:120px}
+}
+@media (max-width:700px){
+	.company-header{flex-direction:column;align-items:flex-start}
+	.company-logo{width:96px}
+}
+
